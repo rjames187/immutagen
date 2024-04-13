@@ -4,11 +4,11 @@ class TextNode:
     self.text_type = text_type
     self.url = url
   
-  def __eq__(self, node1: "TextNode", node2: "TextNode") -> bool:
-    if node1.text != node2.text:
+  def __eq__(self, other: "TextNode") -> bool:
+    if self.text != other.text:
       return False
-    if node1.text_type != node2.text_type:
+    if self.text_type != other.text_type:
       return False
-    if node1.url != node1.url:
+    if self.url != other.url:
       return False
     return True
