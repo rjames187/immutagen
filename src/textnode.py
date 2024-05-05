@@ -24,6 +24,24 @@ class TextNode:
   def __repr__(self) -> str:
     return f'TextNode({self.text}, {self.text_type}, {self.url})'
 
+def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: str) -> list[TextNode]:
+  res = []
+  for old_node in old_nodes:
+    if old_node.text_type != text_type_text:
+      res.append(old_node)
+    else:
+      new_texts = old_node.text.split(delimiter)
+      if len(new_texts) % 2 == 0:
+        raise Exception(f'All opening {delimiter} delimiters must have a closing delimiter')
+      for i in range(len(new_texts)):
+        if len(new_texts[i]) == 0:
+          continue
+        if i % 2 == 0:
+          res.append(TextNode(new_texts[i], text_type_text))
+        else:
+          res.append(TextNode(new_texts[i], text_type))
+  return res
+
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
   text_type = text_node.text_type
   text = text_node.text
