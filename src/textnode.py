@@ -1,5 +1,11 @@
 from htmlnode import LeafNode
 
+# constants
+text_type_text = "text"
+text_type_code = "code"
+text_type_bold = "bold"
+text_type_italic = "italic"
+
 class TextNode:
   def __init__(self, text:str, text_type: str, url: str=None) -> None:
     self.text = text
