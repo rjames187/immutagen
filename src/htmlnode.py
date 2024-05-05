@@ -23,12 +23,13 @@ class HTMLNode:
     return f'HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})'
 
 class LeafNode(HTMLNode):
-  def __init__(self, tag: str=None, value: str=None, children: 'list[HTMLNode]'=None, props: dict=None) -> None:
-    super().__init__(tag, value, children, props)
+  def __init__(self, tag: str=None, value: str=None, props: dict=None) -> None:
+    super().__init__(tag, value, None, props)
 
   def to_html(self) -> str:
     if self.value == None:
       raise ValueError
     if self.tag == None:
       return self.value
-    return f'<{self.tag}> {self.props_to_html()}>{self.value}</{self.tag}>'
+    space = ' ' if self.props != None and len(self.props) > 0 else ''
+    return f'<{self.tag}{space}{self.props_to_html()}>{self.value}</{self.tag}>'
