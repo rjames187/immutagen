@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHTMLNode(unittest.TestCase):
   def test_one_prop_to_html(self):
@@ -28,6 +28,64 @@ class TestLeafNode(unittest.TestCase):
   def test_render_leaf_with_props(self):
     node = LeafNode("a", "Click me!", {"href": "https://www.google.com"})
     self.assertEqual(node.to_html(), '<a href="https://www.google.com">Click me!</a>')
+
+class TestParentNode(unittest.TestCase):
+  def test_multiple_children(self):
+    node = ParentNode(
+        "p",
+        [
+            LeafNode("b", "Bold text"),
+            LeafNode(None, "Normal text"),
+            LeafNode("i", "italic text"),
+            LeafNode(None, "Normal text"),
+        ],
+    )
+    res = '<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>'
+    self.assertEqual(node.to_html(), res)
+  
+  def test_one_child(self):
+    node = ParentNode("p", [LeafNode("b", "Bold text")])
+    self.assertEqual(node.to_html(), '<p><b>Bold text</b></p>')
+  
+  def test_nested_parents(self):
+    node = ParentNode(
+      "div",
+      [
+        ParentNode("p", [LeafNode(None, "Normal text"), LeafNode("b", "Bold Text")]),
+        ParentNode("a", [LeafNode(None, "a link")])
+      ]
+    )
+    res = '<div><p>Normal text<b>Bold Text</b></p><a>a link</a></div>'
+    self.assertEqual(node.to_html(), res)
+  
+  def test_deep_tree(self):
+    node = ParentNode(
+      "div",
+      [
+        ParentNode("div", [
+          ParentNode("p", [LeafNode(None, "Normal text"), LeafNode("b", "Bold Text")]),
+          LeafNode(None, "some text")
+        ]),
+        ParentNode("a", [LeafNode(None, "a link")])
+      ]
+    )
+    res = '<div><div><p>Normal text<b>Bold Text</b></p>some text</div><a>a link</a></div>'
+    self.assertEqual(node.to_html(), res)
+  
+  def test_deep_tree_with_props(self):
+    node = ParentNode(
+      "div",
+      [
+        ParentNode("div", [
+          ParentNode("p", [LeafNode(None, "Normal text"), LeafNode("b", "Bold Text")], {'class': 'paragraph', 'id': 'top-paragraph'}),
+          LeafNode(None, "some text")
+        ]),
+        ParentNode("a", [LeafNode(None, "a link")])
+      ],
+      {'id': 'root'}
+    )
+    res = '<div id="root"><div><p class="paragraph" id="top-paragraph">Normal text<b>Bold Text</b></p>some text</div><a>a link</a></div>'
+    self.assertEqual(node.to_html(), res)
 
 if __name__ == 'main':
   unittest.main()
