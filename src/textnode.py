@@ -24,7 +24,7 @@ class TextNode:
   def __repr__(self) -> str:
     return f'TextNode({self.text}, {self.text_type}, {self.url})'
 
-def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: str) -> list[TextNode]:
+def split_nodes_delimiter(old_nodes: 'list[TextNode]', delimiter: str, text_type: str) -> 'list[TextNode]':
   res = []
   for old_node in old_nodes:
     if old_node.text_type != text_type_text:
