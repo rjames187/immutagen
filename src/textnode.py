@@ -120,3 +120,7 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     return LeafNode("img", None, {"src": text_node.url, "alt": text})
   else:
     raise Exception("Text node type must be bold, italic, code, link, or image")
+
+def markdown_to_blocks(markdown: str) -> 'list[str]':
+  blocks = re.split(r'\n\n+', markdown)
+  return list(map(lambda x: x.strip(), blocks))

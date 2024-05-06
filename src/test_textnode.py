@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
-from textnode import split_nodes_image, split_nodes_link, text_to_textnodes
+from textnode import split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks
 from textnode import text_type_bold, text_type_code, text_type_italic, text_type_text, text_type_image, text_type_link
 
 class TestTextNode(unittest.TestCase):
@@ -220,6 +220,42 @@ class TestTextToTextnode(unittest.TestCase):
     text = "here is some text [ fsdafsadf )! ( ] fdasf"
     res = [TextNode("here is some text [ fsdafsadf )! ( ] fdasf", text_type_text)]
     self.assertEqual(text_to_textnodes(text), res)
+
+class TestSplitBlocks(unittest.TestCase):
+  def test_all_blocks(self):
+    text = """
+This is **bolded** paragraph
+
+This is another paragraph with *italic* text and `code` here
+This is the same paragraph on a new line
+
+* This is a list
+* with items"""
+    res = [
+          "This is **bolded** paragraph",
+          "This is another paragraph with *italic* text and `code` here\nThis is the same paragraph on a new line",
+          "* This is a list\n* with items"
+    ]
+    self.assertEqual(markdown_to_blocks(text), res)
+  
+  def test_many_newlines(self):
+    text = "hello this is a block\n\n\n\nhere is a\n second block\n\nhere is a third block"
+    res = [
+      "hello this is a block",
+      "here is a\n second block",
+      "here is a third block"
+    ]
+    self.assertEqual(markdown_to_blocks(text), res)
+  
+  def test_leading_trailing_whitespaces(self):
+    text = "   hello\n\n    hi     \n\nsdfsgd  "
+    res = [
+      "hello",
+      "hi",
+      "sdfsgd"
+    ]
+    self.assertEqual(markdown_to_blocks(text), res)
+
 
 if __name__ == "__main__":
   unittest.main()
