@@ -154,3 +154,9 @@ def quote_block_to_html_node(block: str) -> ParentNode:
   for line in block.split('\n'):
     children.append(LeafNode(None, line[1:]))
   return ParentNode('blockquote', children)
+
+def unordered_list_block_to_html_node(block: str) -> ParentNode:
+  children = []
+  for line in block.split('\n'):
+    children.append(LeafNode('li', line[2:]))
+  return ParentNode('ul', children)
