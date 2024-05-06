@@ -182,3 +182,8 @@ def heading_block_to_html_node(block: str) -> ParentNode:
   textnodes = text_to_textnodes(block[level+1:])
   children = list(map(text_node_to_html_node, textnodes))
   return ParentNode(f'h{level}', children)
+
+def paragraph_block_to_html_node(block:str) -> ParentNode:
+  textnodes = text_to_textnodes(block)
+  children = list(map(text_node_to_html_node, textnodes))
+  return ParentNode('p', children)
