@@ -6,6 +6,8 @@ text_type_text = "text"
 text_type_code = "code"
 text_type_bold = "bold"
 text_type_italic = "italic"
+text_type_image = "image"
+text_type_link = "link"
 
 class TextNode:
   def __init__(self, text:str, text_type: str, url: str=None) -> None:
@@ -50,6 +52,24 @@ def extract_markdown_images(text: str) -> 'tuple[list[str]]':
 def extract_markdown_links(text: str) -> 'tuple[list[str]]':
   matches = re.findall(r"(?<!!)\[(.*?)\]\((.*?)\)", text)
   return matches
+
+def split_nodes_image(old_nodes: 'list[TextNode]') -> 'list[TextNode]':
+  res = []
+  for old_node in old_nodes:
+    text = old_node.text
+    images = extract_markdown_images(text)
+    if len(images) == 0:
+      res.append(old_node)
+      continue
+    for image in images:
+      split = text.split(f"![{image[0]}]({image[1]})", 1)
+      if split[0] != "":
+        res.append(TextNode(split[0], text_type_text))
+      res.append(TextNode(image[0], text_type_image, image[1]))
+      text = split[1]
+    if text != "":
+      res.append(TextNode(text, text_type_text))
+  return res
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
   text_type = text_node.text_type
