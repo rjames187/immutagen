@@ -1,6 +1,7 @@
 import unittest
 
-from textnode import TextNode, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, text_type_bold, text_type_code, text_type_italic, text_type_text
+from textnode import TextNode, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
+from textnode import text_type_bold, text_type_code, text_type_italic, text_type_text, text_type_image, text_type_link
 
 class TestTextNode(unittest.TestCase):
   def test_eq(self):
@@ -110,6 +111,92 @@ class TestExtractLinksAndImages(unittest.TestCase):
     text = "here is some text [ fsdafsadf ) ( ] fdasf"
     self.assertEqual(extract_markdown_images(text), [])
     self.assertEqual(extract_markdown_links(text), [])
+
+class TestSplitNodesLinksAndImages(unittest.TestCase):
+  def test_split_image(self):
+    node = TextNode(
+      "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+      text_type_text,
+    )
+    res = [
+      TextNode("This is text with an ", text_type_text),
+      TextNode("image", text_type_image, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+      TextNode(" and another ", text_type_text),
+      TextNode(
+          "second image", text_type_image, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png"
+      ),
+    ]
+    self.assertEqual(split_nodes_image([node]), res)
+  
+  def test_split_link(self):
+    node = TextNode(
+      "This is text with an [link](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another [second link](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+      text_type_text,
+    )
+    res = [
+      TextNode("This is text with an ", text_type_text),
+      TextNode("link", text_type_link, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+      TextNode(" and another ", text_type_text),
+      TextNode(
+          "second link", text_type_link, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png"
+      ),
+    ]
+    self.assertEqual(split_nodes_link([node]), res)
+  
+  def test_split_link_no_results(self):
+    node = TextNode("here is some text [ fsdafsadf ) ( ] fdasf", text_type_text)
+    self.assertEqual(split_nodes_link([node]), [node])
+  
+  def test_split_image_no_results(self):
+    node = TextNode("here is some text ![ fsdafsadf ) ( ] fdasf", text_type_text)
+    self.assertEqual(split_nodes_image([node]), [node])
+  
+  def test_split_dup_images(self):
+    node = TextNode("![howdy](https://funny.com/howdy.png) cool ![howdy](https://funny.com/howdy.png)", text_type_text)
+    res = [
+      TextNode("howdy", text_type_image, "https://funny.com/howdy.png"),
+      TextNode(" cool ", text_type_text),
+      TextNode("howdy", text_type_image, "https://funny.com/howdy.png")
+    ]
+    self.assertEqual(split_nodes_image([node]), res)
+  
+  def test_split_dup_links(self):
+    node = TextNode("[howdy](https://funny.com/howdy.png) cool [howdy](https://funny.com/howdy.png)", text_type_text)
+    res = [
+      TextNode("howdy", text_type_link, "https://funny.com/howdy.png"),
+      TextNode(" cool ", text_type_text),
+      TextNode("howdy", text_type_link, "https://funny.com/howdy.png")
+    ]
+    self.assertEqual(split_nodes_link([node]), res)
+  
+  def test_split_multiple_nodes(self):
+    node1 = TextNode("[howdy](https://funny.com/howdy.png) cool [howdy](https://funny.com/howdy.png)", text_type_text)
+    node2 = TextNode("here is some text [ fsdafsadf ) ( ] fdasf", text_type_text)
+    node3 = TextNode(
+      "This is text with an [link](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another [second link](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+      text_type_text,
+    )
+    res = [
+      TextNode("howdy", text_type_link, "https://funny.com/howdy.png"),
+      TextNode(" cool ", text_type_text),
+      TextNode("howdy", text_type_link, "https://funny.com/howdy.png"),
+      TextNode("here is some text [ fsdafsadf ) ( ] fdasf", text_type_text),
+      TextNode("This is text with an ", text_type_text),
+      TextNode("link", text_type_link, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+      TextNode(" and another ", text_type_text),
+      TextNode(
+          "second link", text_type_link, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png"
+      )
+    ]
+    self.assertEqual(split_nodes_link([node1, node2, node3]), res)
+
+  def test_split_link_igore_image(self):
+    node = TextNode("[howdy](https://funny.com/howdy.png) cool ![howdy](https://funny.com/howdy.png)", text_type_text)
+    res = [
+      TextNode("howdy", text_type_link, "https://funny.com/howdy.png"),
+      TextNode(" cool ![howdy](https://funny.com/howdy.png)", text_type_text)
+    ]
+    self.assertEqual(split_nodes_link([node]), res)
 
 if __name__ == "__main__":
   unittest.main()
