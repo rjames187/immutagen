@@ -152,20 +152,25 @@ def block_to_block_type(block: str) -> str:
 def quote_block_to_html_node(block: str) -> ParentNode:
   children = []
   for line in block.split('\n'):
-    children.append(LeafNode(None, line[1:]))
+    textnodes = text_to_textnodes(line[1:])
+    children.extend(list(map(text_node_to_html_node, textnodes)))
   return ParentNode('blockquote', children)
 
 def unordered_list_block_to_html_node(block: str) -> ParentNode:
-  children = []
+  items = []
   for line in block.split('\n'):
-    children.append(LeafNode('li', line[2:]))
-  return ParentNode('ul', children)
+    textnodes = text_to_textnodes(line[2:])
+    children = list(map(text_node_to_html_node, textnodes))
+    items.append(ParentNode('li', children))
+  return ParentNode('ul', items)
 
 def ordered_list_block_to_html_node(block: str) -> ParentNode:
-  children = []
+  items = []
   for line in block.split('\n'):
-    children.append(LeafNode('li', line[2:]))
-  return ParentNode('ol', children)
+    textnodes = text_to_textnodes(line[3:])
+    children = list(map(text_node_to_html_node, textnodes))
+    items.append(ParentNode('li', children))
+  return ParentNode('ol', items)
 
 def code_block_to_html_node(block: str) -> ParentNode:
   textnodes = text_to_textnodes(block[3:-3])
