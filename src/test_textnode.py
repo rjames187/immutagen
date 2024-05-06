@@ -1,6 +1,7 @@
 import unittest
 
-from textnode import TextNode, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
+from textnode import TextNode, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from textnode import split_nodes_image, split_nodes_link, text_to_textnodes
 from textnode import text_type_bold, text_type_code, text_type_italic, text_type_text, text_type_image, text_type_link
 
 class TestTextNode(unittest.TestCase):
@@ -197,6 +198,28 @@ class TestSplitNodesLinksAndImages(unittest.TestCase):
       TextNode(" cool ![howdy](https://funny.com/howdy.png)", text_type_text)
     ]
     self.assertEqual(split_nodes_link([node]), res)
+  
+class TestTextToTextnode(unittest.TestCase):
+  def test_all_text_types(self):
+    text = "This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
+    res = [
+      TextNode("This is ", text_type_text),
+      TextNode("text", text_type_bold),
+      TextNode(" with an ", text_type_text),
+      TextNode("italic", text_type_italic),
+      TextNode(" word and a ", text_type_text),
+      TextNode("code block", text_type_code),
+      TextNode(" and an ", text_type_text),
+      TextNode("image", text_type_image, "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"),
+      TextNode(" and a ", text_type_text),
+      TextNode("link", text_type_link, "https://boot.dev"),
+    ]
+    self.assertEqual(text_to_textnodes(text), res)
+  
+  def test_no_special_types(self):
+    text = "here is some text [ fsdafsadf )! ( ] fdasf"
+    res = [TextNode("here is some text [ fsdafsadf )! ( ] fdasf", text_type_text)]
+    self.assertEqual(text_to_textnodes(text), res)
 
 if __name__ == "__main__":
   unittest.main()
