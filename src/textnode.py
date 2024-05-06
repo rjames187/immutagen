@@ -1,4 +1,4 @@
-from htmlnode import LeafNode
+from htmlnode import LeafNode, ParentNode
 import re
 
 # constants
@@ -148,3 +148,9 @@ def block_to_block_type(block: str) -> str:
     if i == len(lines) - 1:
       return block_type_ordered_list
   return block_type_paragraph
+
+def quote_block_to_html_node(block: str) -> ParentNode:
+  children = []
+  for line in block.split('\n'):
+    children.append(LeafNode(None, line[1:]))
+  return ParentNode('blockquote', children)
