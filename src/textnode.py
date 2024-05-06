@@ -43,25 +43,13 @@ def split_nodes_delimiter(old_nodes: 'list[TextNode]', delimiter: str, text_type
           res.append(TextNode(new_texts[i], text_type))
   return res
 
-def extract_markdown_images(text: str) -> tuple[list[str]]:
-  res = []
+def extract_markdown_images(text: str) -> 'tuple[list[str]]':
   matches = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
-  for match in matches:
-    pieces = match.split("](")
-    alt = pieces[0][2:]
-    src = pieces[1][:len(pieces[1])-1]
-    res.append((alt, src))
-  return res
+  return matches
 
-def extract_markdown_links(text: str) -> tuple[list[str]]:
-  res = []
-  matches = re.findall(r"^(?!!)\[(.*?)\]\((.*?)\)", text)
-  for match in matches:
-    pieces = match.split("](")
-    alt = pieces[0][1:]
-    src = pieces[1][:len(pieces[1])-1]
-    res.append((alt, src))
-  return res
+def extract_markdown_links(text: str) -> 'tuple[list[str]]':
+  matches = re.findall(r"(?<!!)\[(.*?)\]\((.*?)\)", text)
+  return matches
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
   text_type = text_node.text_type

@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, split_nodes_delimiter, text_type_bold, text_type_code, text_type_italic, text_type_text
+from textnode import TextNode, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, text_type_bold, text_type_code, text_type_italic, text_type_text
 
 class TestTextNode(unittest.TestCase):
   def test_eq(self):
@@ -89,6 +89,27 @@ class TestSplitNodesDelimiter(unittest.TestCase):
       TextNode(" word", text_type_text),
     ]
     self.assertEqual(new_nodes, res)
+
+class TestExtractLinksAndImages(unittest.TestCase):
+  def test_extract_images(self):
+    text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
+    res = [("image", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"), ("another", "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png")]
+    self.assertEqual(extract_markdown_images(text), res)
+  
+  def test_extract_links(self):
+    text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+    res = [("link", "https://www.example.com"), ("another", "https://www.example.com/another")]
+    self.assertEqual(extract_markdown_links(text), res)
+
+  def test_extract_links_ignore_images(self):
+    text = "This is text with a ![image](https://www.example.com) and [another](https://www.example.com/another)"
+    res = [("another", "https://www.example.com/another")]
+    self.assertEqual(extract_markdown_links(text), res)
+
+  def test_extract_no_results(self):
+    text = "here is some text [ fsdafsadf ) ( ] fdasf"
+    self.assertEqual(extract_markdown_images(text), [])
+    self.assertEqual(extract_markdown_links(text), [])
 
 if __name__ == "__main__":
   unittest.main()
