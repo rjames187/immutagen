@@ -53,6 +53,16 @@ def extract_markdown_images(text: str) -> tuple[list[str]]:
     res.append((alt, src))
   return res
 
+def extract_markdown_links(text: str) -> tuple[list[str]]:
+  res = []
+  matches = re.findall(r"^(?!!)\[(.*?)\]\((.*?)\)", text)
+  for match in matches:
+    pieces = match.split("](")
+    alt = pieces[0][1:]
+    src = pieces[1][:len(pieces[1])-1]
+    res.append((alt, src))
+  return res
+
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
   text_type = text_node.text_type
   text = text_node.text
