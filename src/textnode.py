@@ -183,7 +183,26 @@ def heading_block_to_html_node(block: str) -> ParentNode:
   children = list(map(text_node_to_html_node, textnodes))
   return ParentNode(f'h{level}', children)
 
-def paragraph_block_to_html_node(block:str) -> ParentNode:
+def paragraph_block_to_html_node(block: str) -> ParentNode:
   textnodes = text_to_textnodes(block)
   children = list(map(text_node_to_html_node, textnodes))
   return ParentNode('p', children)
+
+def markdown_to_html_node(markdown: str) -> ParentNode:
+  children = []
+  blocks = markdown_to_blocks(markdown)
+  for block in blocks:
+    block_type = block_to_block_type(block)
+    if block_type == block_type_quote:
+      children.append(quote_block_to_html_node(block))
+    elif block_type == block_type_unordered_list:
+      children.append(unordered_list_block_to_html_node(block))
+    elif block_type == block_type_ordered_list:
+      children.append(ordered_list_block_to_html_node(block))
+    elif block_type == block_type_code:
+      children.append(code_block_to_html_node(block))
+    elif block_type == block_type_heading:
+      children.append(heading_block_to_html_node(block))
+    elif block_type == block_type_paragraph:
+      children.append(paragraph_block_to_html_node(block))
+  return ParentNode('div', children)
