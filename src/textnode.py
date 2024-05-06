@@ -9,6 +9,13 @@ text_type_italic = "italic"
 text_type_image = "image"
 text_type_link = "link"
 
+block_type_paragraph = "paragraph"
+block_type_heading = "heading"
+block_type_code = "code"
+block_type_quote = "quote"
+block_type_unordered_list = "unordered_list"
+block_type_ordered_list = "ordered_list"
+
 class TextNode:
   def __init__(self, text:str, text_type: str, url: str=None) -> None:
     self.text = text
@@ -124,3 +131,20 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
 def markdown_to_blocks(markdown: str) -> 'list[str]':
   blocks = re.split(r'\n\n+', markdown)
   return list(map(lambda x: x.strip(), blocks))
+
+def block_to_block_type(block: str) -> str:
+  if re.fullmatch(r"^#{1,6} .+", block):
+    return block_type_heading
+  elif block.startswith('```') and block.endswith('```'):
+    return block_type_code
+  lines = block.split('\n')
+  if len(list(filter(lambda x: x.startswith('>'), lines))) == len(lines):
+    return block_type_quote
+  if len(list(filter(lambda x: re.fullmatch(r'^[\*-] '), lines))) == len(lines):
+    return block_type_unordered_list
+  for i in range(len(lines)):
+    if not lines[i].startswith(f'{i + 1}. '):
+      break
+    if i == len(lines) - 1:
+      return block_type_ordered_list
+  return block_type_paragraph
