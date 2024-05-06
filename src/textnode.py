@@ -166,3 +166,8 @@ def ordered_list_block_to_html_node(block: str) -> ParentNode:
   for line in block.split('\n'):
     children.append(LeafNode('li', line[2:]))
   return ParentNode('ol', children)
+
+def code_block_to_html_node(block: str) -> ParentNode:
+  textnodes = text_to_textnodes(block[3:-3])
+  children = list(map(text_node_to_html_node, textnodes))
+  return ParentNode('pre', [ParentNode('code', children)])
