@@ -176,3 +176,9 @@ def code_block_to_html_node(block: str) -> ParentNode:
   textnodes = text_to_textnodes(block[3:-3])
   children = list(map(text_node_to_html_node, textnodes))
   return ParentNode('pre', [ParentNode('code', children)])
+
+def heading_block_to_html_node(block: str) -> ParentNode:
+  level = block.split(' ')[0].count('#')
+  textnodes = text_to_textnodes(block[level+1:])
+  children = list(map(text_node_to_html_node, textnodes))
+  return ParentNode(f'h{level}', children)
