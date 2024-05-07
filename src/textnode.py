@@ -124,7 +124,7 @@ def text_node_to_html_node(text_node: TextNode) -> LeafNode:
   elif text_type == text_type_link:
     return LeafNode("a", text, {"href": text_node.url})
   elif text_type == text_type_image:
-    return LeafNode("img", None, {"src": text_node.url, "alt": text})
+    return LeafNode("img", text, {"src": text_node.url, "alt": text})
   else:
     raise Exception("Text node type must be bold, italic, code, link, or image")
 
@@ -140,7 +140,7 @@ def block_to_block_type(block: str) -> str:
   lines = block.split('\n')
   if len(list(filter(lambda x: x.startswith('>'), lines))) == len(lines):
     return block_type_quote
-  if len(list(filter(lambda x: re.fullmatch(r'^[\*-] '), lines))) == len(lines):
+  if len(list(filter(lambda x: re.fullmatch(r'^[\*-] ', x), lines))) == len(lines):
     return block_type_unordered_list
   for i in range(len(lines)):
     if not lines[i].startswith(f'{i + 1}. '):
@@ -206,3 +206,9 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
     elif block_type == block_type_paragraph:
       children.append(paragraph_block_to_html_node(block))
   return ParentNode('div', children)
+
+def extract_title(markdown: str) -> str:
+  for line in markdown.split('\n'):
+    if line.strip().startswith('# '):
+      return line.strip()[2:]
+  raise Exception('markdown document must have a top level heading')

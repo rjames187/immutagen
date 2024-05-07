@@ -28,7 +28,7 @@ class LeafNode(HTMLNode):
 
   def to_html(self) -> str:
     if self.value == None:
-      raise ValueError
+      raise ValueError("Leaf node must have a value")
     if self.tag == None:
       return self.value
     space = ' ' if self.props != None and len(self.props) > 0 else ''
